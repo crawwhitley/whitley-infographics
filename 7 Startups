@@ -1,8 +1,138 @@
-<iframe 
-  src="YOUR_GITHUB_PAGES_URL/card-startups.html" 
-  width="340" 
-  height="420" 
-  frameborder="0" 
-  scrolling="no" 
-  style="background: transparent; border: none;">
-</iframe>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --cream: #F7F3EE;
+      --ink: #1A1612;
+      --rust: #C4572A;
+      --card-bg: #FFFFFF;
+    }
+    body {
+      background: var(--cream);
+      font-family: 'DM Sans', sans-serif;
+      color: var(--ink);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 40px 24px;
+    }
+    .card {
+      background: var(--card-bg);
+      border-radius: 20px;
+      padding: 44px 36px;
+      position: relative;
+      overflow: hidden;
+      max-width: 340px;
+      width: 100%;
+      box-shadow: 0 2px 0 rgba(0,0,0,0.06), 0 8px 32px rgba(0,0,0,0.05);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      opacity: 0;
+      transform: translateY(24px);
+      animation: fadeUp 0.7s ease forwards 0.2s;
+    }
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 4px 0 rgba(0,0,0,0.08), 0 16px 48px rgba(0,0,0,0.1);
+    }
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 4px;
+      background: var(--rust);
+      border-radius: 20px 20px 0 0;
+    }
+    .card-circle {
+      position: absolute;
+      bottom: -40px; right: -40px;
+      width: 140px; height: 140px;
+      border-radius: 50%;
+      background: var(--rust);
+      opacity: 0.07;
+    }
+    .card-icon { font-size: 32px; margin-bottom: 20px; display: block; }
+    .card-label {
+      font-size: 11px; font-weight: 500;
+      letter-spacing: 0.18em; text-transform: uppercase;
+      color: #9B918A; margin-bottom: 12px;
+    }
+    .card-number {
+      font-family: 'Playfair Display', serif;
+      font-size: 72px; font-weight: 900;
+      line-height: 1; color: var(--rust); margin-bottom: 6px;
+    }
+    .card-title { font-size: 17px; font-weight: 500; color: var(--ink); margin-bottom: 10px; line-height: 1.3; }
+    .card-desc { font-size: 14px; font-weight: 300; color: #7A706A; line-height: 1.65; }
+    .dots-grid { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
+    .dot-item {
+      display: flex; flex-direction: column; align-items: center; gap: 5px;
+      opacity: 0; transform: scale(0.5);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+    .dot-item.pop { opacity: 1; transform: scale(1); }
+    .dot-icon {
+      width: 36px; height: 36px; border-radius: 10px;
+      background: #FFF5EE; border: 2px solid var(--rust);
+      display: flex; align-items: center; justify-content: center; font-size: 16px;
+    }
+    .dot-label { font-size: 9px; font-weight: 500; color: #9B918A; text-align: center; max-width: 52px; line-height: 1.3; }
+    @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="card-circle"></div>
+    <span class="card-icon">🚀</span>
+    <p class="card-label">Nonprofits & Startups</p>
+    <div class="card-number"><span id="count">0</span></div>
+    <p class="card-title">Organizations launched from the ground up</p>
+    <p class="card-desc">From day one brand strategy to fully operational marketing departments, built for small teams with big missions.</p>
+    <div class="dots-grid" id="dots"></div>
+  </div>
+  <script>
+    const labels = ['Nonprofit','Nonprofit','Nonprofit','Startup','Startup','Startup','Startup'];
+    const emojis = ['💛','💛','💛','⚡','⚡','⚡','⚡'];
+    const dotsContainer = document.getElementById('dots');
+    labels.forEach((lbl, i) => {
+      const item = document.createElement('div');
+      item.className = 'dot-item';
+      item.id = `dot${i}`;
+      item.innerHTML = `<div class="dot-icon">${emojis[i]}</div><span class="dot-label">${lbl}</span>`;
+      dotsContainer.appendChild(item);
+    });
+    function animateCount(target, duration) {
+      let start = 0;
+      const el = document.getElementById('count');
+      const step = (ts) => {
+        if (!start) start = ts;
+        const progress = Math.min((ts - start) / duration, 1);
+        const ease = 1 - Math.pow(1 - progress, 3);
+        el.textContent = Math.floor(ease * target);
+        if (progress < 1) requestAnimationFrame(step);
+        else el.textContent = target;
+      };
+      requestAnimationFrame(step);
+    }
+    function trigger() {
+      animateCount(7, 1400);
+      for (let i = 0; i < 7; i++) {
+        setTimeout(() => document.getElementById(`dot${i}`).classList.add('pop'), 300 + i * 150);
+      }
+    }
+    const observer = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting) { trigger(); observer.disconnect(); }
+    }, { threshold: 0.25 });
+    observer.observe(document.querySelector('.card'));
+    window.addEventListener('load', () => {
+      const rect = document.querySelector('.card').getBoundingClientRect();
+      if (rect.top < window.innerHeight * 0.9) { trigger(); observer.disconnect(); }
+    });
+  </script>
+</body>
+</html>
